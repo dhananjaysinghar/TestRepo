@@ -1,10 +1,13 @@
 // Get assigned partitions details
         Map<String, Object> partitionDetails = new HashMap<>();
         try {
-            meterRegistry.get("kafka.consumer.assignment")
-                    .gauge().getId().getTags().forEach(tag -> {
-                if ("topic".equals(tag.getKey()) || "partition".equals(tag.getKey())) {
-                    partitionDetails.put(tag.getKey(), tag.getValue());
+            Search assignmentSearch = meterRegistry.find("kafka.consumer.assignment");
+            assignmentSearch.meters().forEach(meter -> {
+                String topic = meter.getId().getTag("topic");
+                String partition = meter.getId().getTag("partition");
+
+                if (topic != null && partition != null) {
+                    partitionDetails.put("topic-" + topic + "-partition-" + partition, "assigned");
                 }
             });
             details.put("assignedPartitions", partitionDetails);
