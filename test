@@ -1,0 +1,13 @@
+// Get assigned partitions details
+        Map<String, Object> partitionDetails = new HashMap<>();
+        try {
+            meterRegistry.get("kafka.consumer.assignment")
+                    .gauge().getId().getTags().forEach(tag -> {
+                if ("topic".equals(tag.getKey()) || "partition".equals(tag.getKey())) {
+                    partitionDetails.put(tag.getKey(), tag.getValue());
+                }
+            });
+            details.put("assignedPartitions", partitionDetails);
+        } catch (Exception e) {
+            details.put("assignedPartitions", "Unavailable");
+        }
